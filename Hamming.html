@@ -1,0 +1,131 @@
+<DOCTYPE  html>
+<html>
+	<head>
+		<title> Hamming code </title>
+		<script>
+			function code(){
+				let mesCod = document.getElementById('inputData').value;
+				let DigitsCod = mesCod.split('');
+				for (let i = 0; i < DigitsCod.length; i++)
+					DigitsCod[i] = DigitsCod[i] * 1;
+					
+				DigitsCod.push((DigitsCod[0] + DigitsCod[2] + DigitsCod[3]) % 2);
+				DigitsCod.push((DigitsCod[0] + DigitsCod[3] + DigitsCod[1]) % 2);
+				DigitsCod.push((DigitsCod[1] + DigitsCod[3] + DigitsCod[2]) % 2);
+				document.getElementById('codedData').value = DigitsCod.join('');	
+			}
+			function decode(){
+				let mesDec = document.getElementById('codedData').value;
+				let DigitsDec = mesDec.split('');
+				let corBitDigitsDec = new Array();
+				let corBitMesDec = [DigitsDec[4],DigitsDec[5],DigitsDec[6]];
+				
+				for (let j = 0; j < corBitMesDec.length; j++)
+					corBitMesDec[j] = corBitMesDec[j] * 1;
+				
+				for (let j = 0; j < DigitsDec.length; j++)
+					DigitsDec[j] = DigitsDec[j] * 1;
+				
+				s1 = (DigitsDec[0] + DigitsDec[2] + DigitsDec[3]) % 2;
+				corBitDigitsDec.push(s1);
+				s2 = (DigitsDec[0] + DigitsDec[3] + DigitsDec[1]) % 2;
+				corBitDigitsDec.push(s2);
+				s3 = (DigitsDec[1] + DigitsDec[3] + DigitsDec[2]) % 2;
+				corBitDigitsDec.push(s3);
+				
+				for (let j = 0; j < corBitDigitsDec.length; j++)
+					corBitDigitsDec[j] = corBitDigitsDec[j] * 1;
+
+				let Chan = 0;
+				let t = -1;
+				let erorrLine = '';
+				if (JSON.stringify(corBitDigitsDec) != JSON.stringify(corBitMesDec)){
+					for(y = 0; y < 3; y++){
+						if (corBitDigitsDec[y] != corBitMesDec[y]){
+							erorrLine += y;
+							Chan++;
+							t = y;
+						}
+					}
+				}
+				if (Chan == 1){
+					corBitMesDec[t] = corBitDigitsDec[t]
+				}
+				else if (Chan > 1){
+					function repl(u){
+					if (DigitsDec[u] == 1)
+						DigitsDec[u] = 0;
+					else
+						DigitsDec[u] = 1;
+					}
+					if (Chan == 3){
+						repl(3);
+					}
+					if (Chan == 2){
+						if (erorrLine == '01')
+							repl(0);
+						else if (erorrLine == '12')
+							repl(1);
+						else
+							repl(2);					
+					}
+				}
+				else{
+					document.getElementById('decodedData').value = DigitsDec.slice(0,4).join('');
+					document.getElementById('Error').innerHTML = 'No errors found';
+				}
+				function detection(){
+					if (Chan == 0)
+						return 'Error not found'
+					else if (Chan == 1){
+						t++;
+						err = 4 + t; 
+						return ('Error on element: ' + err);
+					}
+					else{
+						if (erorrLine == '01')
+							err = 1;
+						else if (erorrLine == '12')
+							err = 2;
+						else
+							err = 3;
+						return ('Error on element: ' + err);
+
+					}
+				}
+				document.getElementById('decodedData').value = DigitsDec.slice(0,4).join('');
+				document.getElementById('Error').innerHTML = detection();
+			}
+			
+		</script>
+	</head>
+	<body>
+		<h3> Hamming Code</h3>
+		<p>input data <input type='text' id='inputData' maxlength='4' onkeypress='limit(inputData)'/></p>
+		<p><input type='button' onclick='code()' value='Code'/></p>
+		<p>coded data <input type='text' id='codedData' maxlength='7'/></p>
+		<p><input type='button' onclick='decode()' value='Decode'/></p>
+		<p>decoded data <input type='text' id='decodedData' maxlength='7' /></p>
+		<p id= 'Error'></p>
+		<script type="text/javascript">
+			let inputData = document.querySelector('#inputData');
+			let CodeData = document.querySelector('#codedData');
+			let DecodeData = document.querySelector('#decodedData');
+			let ter = document.querySelector('.span');
+			let reg1 = /[A-Za-А-Яа-яЁё]/g;
+			let reg2 = /[2-9]/g;
+			inputData.oninput = function(){
+				this.value = this.value.replace(reg1,'');
+				this.value = this.value.replace(reg2,'');
+			}
+			CodeData.oninput = function(){
+				this.value = this.value.replace(reg1,'');
+				this.value = this.value.replace(reg2,'');
+			}
+			DecodeData.oninput = function(){
+				this.value = this.value.replace(reg1,'');
+				this.value = this.value.replace(reg2,'');
+			}
+		</script>
+	</body>
+</html>
